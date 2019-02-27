@@ -10,28 +10,41 @@ module.exports = {
 
   module: {
     rules: [
+      // {
+      //   test: /\.(png|jpe?g)$/,
+      //   include: path.resolve(__dirname, 'src'),
+      //   use: [
+      //     {
+      //       loader: 'file-loader',
+      //       options: {
+      //         outputPath: 'images'
+      //       }
+      //     }
+      //   ]
+      // }
       {
-        test: /\.js$/,
+        test: /\.(png|jpe?g)$/,
         include: path.resolve(__dirname, 'src'),
         use: [
           {
-            loader: path.resolve(__dirname, './loader.js'),
-            options: {/* ... */}
-          }
-        ]
-      }, 
-      {
-        test: /\.png$/,
-        include: path.resolve(__dirname, 'src'),
-        use: [
-          {
-            loader: path.resolve(__dirname, './loader.js'),
+            loader: path.resolve(__dirname, './url-loader.js'),
             options: {
-              test: '测试的'
+              publicPath: 'images',
+              name: '[hash:8].[ext]',
+              limited: 8000
             }
           }
         ]
-      }, 
+      },
+      {
+        test: /\.md$/,
+        include: path.resolve(__dirname, 'src'),
+        use: [
+          {
+            loader: path.resolve(__dirname, './md-loader.js')
+          }
+        ]
+      }
     ]
   }
 };
