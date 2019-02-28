@@ -2,35 +2,56 @@ const path = require('path');
 const mime = require('mime');
 const Buffer = require('buffer').Buffer;
 const utils = require('loader-utils');
+const validateOptions = require('schema-utils');
 
 const defaultOptions = {
   publicPath: 'images',
   name: '[hash:8].[ext]',
   limit: 8000,
-}
+};
 
-function log(...rest) {
-  console.log('**********************************');
-  console.log(...rest);
-  console.log('**********************************');
-}
+// 配置校验规则
+const schema = {
+  "type": "object",
+  "properties": {
+    "publicPath": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "limit": {
+      "type": "number"
+    },
+    "errorMessage": {
+      "publicPath": "url-loader publicPath option should be a string", 
+      "name": "url-loader name option should be a string", 
+      "limit": "url-loader limit option should be a number"
+    }
+  },
+  "additionalProperties": false
+};
 
 module.exports = function(file) {
   // 获取 loader options
-  const options = {
+  let options = utils.getOptions(this) || {}
+  validateOptions(schema, options, 'url-loader');
+
+  options = {
     ...defaultOptions,
-    ...utils.getOptions(this)
+    ...options
   };
 
   const fileSize = Buffer.byteLength(file, 'utf8');
 
+  // 如果文件大小符合条件, 就返回 base64
   if (fileSize < options.limit) {
     const base64String = file.toString('base64');
     const type = mime.getType(path.basename(this.resourcePath));
-    // data:text/html,%3Ch1%3EHello%2C%20World!%3C%2Fh1%3E
     return `module.exports = ${JSON.stringify(`data:${type ? type: ''};base64,${base64String}`)}`
   }
 
+  // 否则返回路径
   const fileName = utils.interpolateName(this, options.name, {
     context: this.rootContext,
     content: file,

@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlPlugin = require('./plugin/html-plugin');
 
 module.exports = {
   mode: 'development',
@@ -10,28 +11,16 @@ module.exports = {
 
   module: {
     rules: [
-      // {
-      //   test: /\.(png|jpe?g)$/,
-      //   include: path.resolve(__dirname, 'src'),
-      //   use: [
-      //     {
-      //       loader: 'file-loader',
-      //       options: {
-      //         outputPath: 'images'
-      //       }
-      //     }
-      //   ]
-      // }
       {
         test: /\.(png|jpe?g)$/,
         include: path.resolve(__dirname, 'src'),
         use: [
           {
-            loader: path.resolve(__dirname, './url-loader.js'),
+            loader: path.resolve(__dirname, './loader/url-loader.js'),
             options: {
               publicPath: 'images',
               name: '[hash:8].[ext]',
-              limited: 8000
+              limit: 8000,
             }
           }
         ]
@@ -41,10 +30,14 @@ module.exports = {
         include: path.resolve(__dirname, 'src'),
         use: [
           {
-            loader: path.resolve(__dirname, './md-loader.js')
+            loader: path.resolve(__dirname, './loader/md-loader.js')
           }
         ]
       }
     ]
-  }
+  },
+
+  plugins: [
+    new HtmlPlugin()
+  ]
 };
